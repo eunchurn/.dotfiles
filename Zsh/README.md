@@ -1,9 +1,6 @@
-
-Zsh
-===
+# Zsh
 
 > Why haven't you installed it already!?
-
 
 ## Installation
 
@@ -30,7 +27,6 @@ ln -s ~/Dropbox/System/.localrc ~/.localrc
 ln -s ~/Dropbox/System/.zsh_history ~/.zsh_history
 ```
 
-
 ## Manage Plugin/Theme [Subtrees][subtrees]
 
 Use custom function to manage scripts:
@@ -49,8 +45,12 @@ For themes, also symlink their underlying `.zsh-theme` file to directory:
 
 ```bash
 # example
-ln -s "$ZSH_CUSTOM/themes/spaceship-prompt/spaceship.zsh-theme" "$ZSH_CUSTOM/themes/spaceship.zsh-theme"
+ln -s "$ZSH_CUSTOM/themes/powerlevel10k/powerlevel10k.zsh-theme" "$ZSH_CUSTOM/themes/powerlevel10k.zsh-theme"
 # then update the .zshrc file to set the theme name
+```
+
+```bash
+ln -s ~/.dotfiles/Zsh/custom/themes/.p10k.zsh ~/.p10k.zsh
 ```
 
 [subtrees]: https://www.atlassian.com/blog/git/alternatives-to-git-submodule-git-subtree

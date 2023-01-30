@@ -1,6 +1,4 @@
-
-[mpv](https://mpv.io/)
-======================
+# [mpv](https://mpv.io/)
 
 > a free, open source, and cross-platform media player
 
@@ -16,5 +14,3 @@ brew install --cask mpv
 ```bash
 ln -s ~/.dotfiles/MPV ~/.mpv
 ```
-
-

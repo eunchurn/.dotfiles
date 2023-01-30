@@ -1,18 +1,18 @@
 #!/bin/bash
 
 # ALIASES
-# #######
 
 # List
-alias  l='ls -FG'
+alias l='ls -FG'
 alias la='ls -FGalh'
 alias ll='ls -FG1'
 
 # Directories
 alias dotfiles="cd $dotfiles"
-alias     crap="cd ~/crap"
-alias     code="cd ~/code"
-alias  clients="cd ~/code/sruplex/clients"
+alias crap="cd ~/crap"
+alias dev="cd ~/dev"
+alias chang="cd ~/chang"
+alias clients="cd ~/code/sruplex/clients"
 
 # Edit .zshrc file
 alias zshrc="$EDITOR $zshrc"
@@ -44,8 +44,7 @@ alias psytree-root='grep -e "^|-- \["'
 alias psytree-dirs='grep -e "\/$" | sed "s/^|--/|\n|--/g"'
 
 # Applications
-alias vsc='open -a "Visual Studio Code"'
+# alias vsc='open -a "Visual Studio Code"'
 
 # Make sudo work with aliases
 alias sudo='sudo '
-

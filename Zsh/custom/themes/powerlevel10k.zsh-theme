@@ -1,0 +1,1 @@
+/Users/eunchurn/.dotfiles/Zsh/custom/themes/powerlevel10k/powerlevel10k.zsh-theme
