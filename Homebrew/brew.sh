@@ -52,7 +52,7 @@ brew install hub
 brew install duti
 brew install k9s
 brew install docker-compose
-
+brew install neofetch
 
 #> External Binaries
 # brew install neovim/neovim/neovim --HEAD

@@ -38,7 +38,7 @@ export PROMPT_GEOMETRY_COMMAND_MAX_EXEC_TIME=0
 export POWERLEVEL9K_DISABLE_CONFIGURATION_WIZARD=true
 
 # Zsh Settings
-plugins=(git brew zsh-syntax-highlighting zsh-autosuggestions fzf fasd zsh-hangul)
+plugins=(git brew zsh-syntax-highlighting zsh-autosuggestions fzf fasd zsh-hangul macos docker kubectl)
 # ZSH_THEME="geometry/geometry"
 ZSH_THEME="powerlevel10k/powerlevel10k"
 COMPLETION_WAITING_DOTS="true"
@@ -88,6 +88,16 @@ export NVM_DIR="$HOME/.nvm"
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"                   # This loads nvm
 [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion" # This loads nvm bash_completion
 
+export PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
+export PUPPETEER_EXECUTABLE_PATH=`which chromium`
+
+#THIS MUST BE AT THE END OF THE FILE FOR SDKMAN TO WORK!!!
+export SDKMAN_DIR="$HOME/.sdkman"
+[[ -s "$HOME/.sdkman/bin/sdkman-init.sh" ]] && source "$HOME/.sdkman/bin/sdkman-init.sh"
+export PATH="/opt/homebrew/opt/ruby/bin:$PATH"
+export LDFLAGS="-L/opt/homebrew/opt/ruby/lib"
+export CPPFLAGS="-I/opt/homebrew/opt/ruby/include"
+
 # RVM Configs
 # export PATH=$PATH:$HOME/.rvm/bin
 # [[ -s "$HOME/.rvm/scripts/rvm" ]] && source "$HOME/.rvm/scripts/rvm"
@@ -116,3 +126,5 @@ complete -o nospace -C /opt/homebrew/bin/terraform terraform
 
 # GPG
 export GPG_TTY=$(tty)
+
+neofetch
