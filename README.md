@@ -29,19 +29,19 @@ sudo scutil --set HostName PsyMBP
 #### 2. Clone Dotfiles
 
 ```bash
-git clone https://github.com/eunchurn/dotfiles ~/.dotfiles
+git clone git@github.com:eunchurn/.dotfiles.git ~/.dotfiles
 ```
 
 #### 3. Set up Homebrew
 
 1. Install Homebrew: https://brew.sh
-2. Install important apps and fonts [Homebrew](https://github.com/eunchurn/dotfiles/tree/master/Homebrew) section
+2. Install important apps and fonts [Homebrew](git@github.com:eunchurn/.dotfiles.git/tree/master/Homebrew) section
 
-#### 4. Set up [System Defaults](https://github.com/eunchurn/dotfiles/tree/master/System)
+#### 4. Set up [System Defaults](git@github.com:eunchurn/.dotfiles.git/tree/master/System)
 
-#### 5. Set up [Zsh](https://github.com/eunchurn/dotfiles/tree/master/Zsh)
+#### 5. Set up [Zsh](git@github.com:eunchurn/.dotfiles.git/tree/master/Zsh)
 
-#### 6. Set up [Git](https://github.com/eunchurn/dotfiles/tree/master/Git)
+#### 6. Set up [Git](git@github.com:eunchurn/.dotfiles.git/tree/master/Git)
 
 #### 7. Set up [Vim](https://github.com/eunchurn/dotfiles/tree/master/Vim)
 
