@@ -38,7 +38,20 @@ export PROMPT_GEOMETRY_COMMAND_MAX_EXEC_TIME=0
 export POWERLEVEL9K_DISABLE_CONFIGURATION_WIZARD=true
 
 # Zsh Settings
-plugins=(git brew zsh-syntax-highlighting zsh-autosuggestions fzf fasd zsh-hangul macos docker kubectl)
+plugins=(
+  git
+  brew
+  zsh-syntax-highlighting
+  zsh-autosuggestions
+  fzf
+  fasd
+  zsh-hangul
+  macos
+  docker
+  kubectl
+  aliases
+  1password
+)
 # ZSH_THEME="geometry/geometry"
 ZSH_THEME="powerlevel10k/powerlevel10k"
 COMPLETION_WAITING_DOTS="true"
