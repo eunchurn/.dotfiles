@@ -12,6 +12,7 @@ alias dotfiles="cd $dotfiles"
 alias crap="cd ~/crap"
 alias dev="cd ~/dev"
 alias chang="cd ~/chang"
+alias eunchurn="cd ~/eunchurn"
 
 # Edit .zshrc file
 alias zshrc="$EDITOR $zshrc"

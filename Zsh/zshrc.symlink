@@ -152,3 +152,8 @@ export GPG_TTY=$(tty)
 export PNPM_HOME="/Users/eunchurnpark/Library/pnpm"
 export PATH="$PNPM_HOME:$PATH"
 # pnpm end
+
+# chromium
+export CHROME_EXECUTABLE=/opt/homebrew/bin/chromium
+export PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
+export PUPPETEER_EXECUTABLE_PATH=`which chromium`
