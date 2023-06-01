@@ -45,7 +45,7 @@ plugins=(
   zsh-autosuggestions
   # fzf
   fasd
-  zsh-hangul
+  # zsh-hangul
   macos
   docker
   kubectl
