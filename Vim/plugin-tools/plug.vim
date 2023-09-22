@@ -54,7 +54,7 @@ call plug#begin(path_vim_plug_root)
 
   " UI + Start Screen
   Plug 'Yggdroot/indentLine'                  " Show indent lines
-  Plug 'mhinz/vim-startify'                   " Custom Start Screen for Vim
+  " Plug 'mhinz/vim-startify'                   " Custom Start Screen for Vim
 
 
   " Git

@@ -157,3 +157,10 @@ export PATH="$PNPM_HOME:$PATH"
 export CHROME_EXECUTABLE=/opt/homebrew/bin/chromium
 export PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
 export PUPPETEER_EXECUTABLE_PATH=`which chromium`
+
+source "$HOME/.cargo/env"
+export PATH="/Users/eunchurn/Library/Python/3.11/bin:$PATH"
+export PATH="/opt/homebrew/lib/python3.11/site-packages:$PATH"
+export CPATH=/opt/homebrew/include
+export LIBRARY_PATH=/opt/homebrew/lib
+# source "/Users/eunchurn/emsdk/emsdk_env.sh"
