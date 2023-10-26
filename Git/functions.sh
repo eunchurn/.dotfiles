@@ -28,19 +28,19 @@ gc() {
 
 
 # Tags with Annotations
-gta() {
-  if [[ $# -eq 1 ]] ; then
-    git tag -a "$1"
-  elif [[ $# -eq 2 ]]; then
-    git tag -a "$1" -m "$2"
-  else
-    echo "invalid arguments"
-    echo "usage: gta TAG_NAME [TAG_MESSAGE]"
-    echo "examples:"
-    echo "   gta v1.2"
-    echo "   gta v0.4-beta.3 \"Added Feature X\""
-  fi
-}
+# gta() {
+#   if [[ $# -eq 1 ]] ; then
+#     git tag -a "$1"
+#   elif [[ $# -eq 2 ]]; then
+#     git tag -a "$1" -m "$2"
+#   else
+#     echo "invalid arguments"
+#     echo "usage: gta TAG_NAME [TAG_MESSAGE]"
+#     echo "examples:"
+#     echo "   gta v1.2"
+#     echo "   gta v0.4-beta.3 \"Added Feature X\""
+#   fi
+# }
 
 
 # Delete all branches that match passed arg

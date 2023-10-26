@@ -2995,6 +2995,8 @@
 	<false/>
 	<key>SplitPaneDimmingAmount</key>
 	<real>0.075388608306742849</real>
+	<key>StartDebugLoggingAutomatically</key>
+	<false/>
 	<key>StatusBarPosition</key>
 	<integer>0</integer>
 	<key>SwitchTabModifier</key>
