@@ -233,7 +233,7 @@ function _p9k_fetch_cwd() {
   _p9k__parent_mtimes_s="$_p9k__parent_mtimes_i"
 }
 
-# Usage: _p9k_glob parent_dir_index pattern
+# Usage: _p9k_glob parent_dir_index pattern [glob_qual]
 #
 # parent_dir_index indexes _p9k__parent_dirs.
 #
@@ -250,12 +250,12 @@ function _p9k_glob() {
   fi
   local -a stat
   zstat -A stat +mtime -- $dir 2>/dev/null || stat=(-1)
-  local files=($dir/$~2(N:t))
+  eval 'local files=($dir/$~2('$3'N:t))'
   _p9k__glob_cache[$dir/$2]="$stat[1]:$#files"
   return $#files
 }
 
-# Usage: _p9k_upglob pattern
+# Usage: _p9k_upglob pattern [glob_qual]
 #
 # Returns index within _p9k__parent_dirs or 0 if there is no match.
 #
@@ -273,7 +273,7 @@ function _p9k_upglob() {
     cached[-1]=()
     local -i i
     for i in ${(@)${cached:|_p9k__parent_mtimes_i}%:*}; do
-      _p9k_glob $i $1 && continue
+      _p9k_glob $i "$@" && continue
       _p9k__upsearch_cache[$_p9k__cwd/$1]="${_p9k__parent_mtimes_i[1,i]} $i"
       return i
     done
@@ -286,7 +286,7 @@ function _p9k_upglob() {
     local -i i=1
   fi
   for ((; i <= $#_p9k__parent_mtimes; ++i)); do
-    _p9k_glob $i $1 && continue
+    _p9k_glob $i "$@" && continue
     _p9k__upsearch_cache[$_p9k__cwd/$1]="${_p9k__parent_mtimes_i[1,i]} $i"
     return i
   done
@@ -532,7 +532,7 @@ _p9k_get_icon() {
 _p9k_translate_color() {
   if [[ $1 == <-> ]]; then                  # decimal color code: 255
     _p9k__ret=${(l.3..0.)1}
-  elif [[ $1 == '#'[[:xdigit:]]## ]]; then  # hexademical color code: #ffffff
+  elif [[ $1 == '#'[[:xdigit:]]## ]]; then  # hexadecimal color code: #ffffff
     _p9k__ret=${${(L)1}//ı/i}
   else                                      # named color: red
     # Strip prifixes if there are any.
@@ -1212,7 +1212,7 @@ _p9k_prompt_aws_init() {
 ################################################################
 # Current Elastic Beanstalk environment
 prompt_aws_eb_env() {
-  _p9k_upglob .elasticbeanstalk && return
+  _p9k_upglob .elasticbeanstalk -/ && return
   local dir=$_p9k__parent_dirs[$?]
 
   if ! _p9k_cache_stat_get $0 $dir/.elasticbeanstalk/config.yml; then
@@ -1304,25 +1304,21 @@ function _p9k_read_file() {
 }
 
 function _p9k_fvm_old() {
-  _p9k_upglob fvm && return 1
+  _p9k_upglob fvm @ && return 1
   local fvm=$_p9k__parent_dirs[$?]/fvm
-  if [[ -L $fvm ]]; then
-    if [[ ${fvm:A} == (#b)*/versions/([^/]##)/bin/flutter ]]; then
-      _p9k_prompt_segment prompt_fvm blue $_p9k_color1 FLUTTER_ICON 0 '' ${match[1]//\%/%%}
-      return 0
-    fi
+  if [[ ${fvm:A} == (#b)*/versions/([^/]##)/bin/flutter ]]; then
+    _p9k_prompt_segment prompt_fvm blue $_p9k_color1 FLUTTER_ICON 0 '' ${match[1]//\%/%%}
+    return 0
   fi
   return 1
 }
 
 function _p9k_fvm_new() {
-  _p9k_upglob .fvm && return 1
+  _p9k_upglob .fvm @ && return 1
   local sdk=$_p9k__parent_dirs[$?]/.fvm/flutter_sdk
-  if [[ -L $sdk ]]; then
-    if [[ ${sdk:A} == (#b)*/versions/([^/]##) ]]; then
-      _p9k_prompt_segment prompt_fvm blue $_p9k_color1 FLUTTER_ICON 0 '' ${match[1]//\%/%%}
-      return 0
-    fi
+  if [[ ${sdk:A} == (#b)*/versions/([^/]##) ]]; then
+    _p9k_prompt_segment prompt_fvm blue $_p9k_color1 FLUTTER_ICON 0 '' ${match[1]//\%/%%}
+    return 0
   fi
   return 1
 }
@@ -1751,16 +1747,9 @@ function _p9k_shorten_delim_len() {
 # Percents are duplicated because this function is currently used only
 # where the result is going to be percent-expanded.
 function _p9k_url_escape() {
-  if [[ $1 == [a-zA-Z0-9"/:_.-!'()~ "]# ]]; then
-    _p9k__ret=${1// /%%20}
-  else
-    local c
-    _p9k__ret=
-    for c in ${(s::)1}; do
-      [[ $c == [a-zA-Z0-9"/:_.-!'()~"] ]] || printf -v c '%%%%%02X' $(( #c ))
-      _p9k__ret+=$c
-    done
-  fi
+  emulate -L zsh -o no_multi_byte -o extended_glob
+  local MATCH MBEGIN MEND
+  _p9k__ret=${1//(#m)[^a-zA-Z0-9"\/:_.-!'()~"]/%%${(l:2::0:)$(([##16]#MATCH))}}
 }
 
 ################################################################
@@ -1915,7 +1904,7 @@ prompt_dir() {
       else
         local key=
       fi
-      if ! _p9k_cache_ephemeral_get $0 $e $i $_p9k__cwd || [[ $key != $_p9k__cache_val[1] ]]; then
+      if ! _p9k_cache_ephemeral_get $0 $e $i $_p9k__cwd $p || [[ $key != $_p9k__cache_val[1] ]]; then
         local rtail=${(j./.)rparts[i,-1]}
         local parent=$_p9k__cwd[1,-2-$#rtail]
         _p9k_prompt_length $delim
@@ -2196,7 +2185,7 @@ prompt_go_version() {
       fi
     fi
     if [[ $_p9k__cwd/ != $p/* && $_p9k__cwd_a/ != $p/* ]]; then
-      _p9k_upglob go.mod && return
+      _p9k_upglob go.mod -. && return
     fi
   fi
   _p9k_prompt_segment "$0" "green" "grey93" "GO_ICON" 0 '' "${v//\%/%%}"
@@ -2216,7 +2205,7 @@ prompt_history() {
 
 prompt_package() {
   unset P9K_PACKAGE_NAME P9K_PACKAGE_VERSION
-  _p9k_upglob package.json && return
+  _p9k_upglob package.json -. && return
 
   local file=$_p9k__parent_dirs[$?]/package.json
   if ! _p9k_cache_stat_get $0 $file; then
@@ -2321,6 +2310,7 @@ _p9k_vpn_ip_render() {
 ################################################################
 # Segment to display laravel version
 prompt_laravel_version() {
+  # TODO: add a '-/' or '-.' here depending on whether artisan is a directory or a file.
   _p9k_upglob artisan && return
   local dir=$_p9k__parent_dirs[$?]
   local app=$dir/vendor/laravel/framework/src/Illuminate/Foundation/Application.php
@@ -2430,18 +2420,45 @@ function _p9k_cached_cmd() {
 }
 
 ################################################################
-# Segment to diplay Node version
+# Segment to display Node version
 prompt_node_version() {
-  _p9k_upglob package.json
+  _p9k_upglob package.json -.
   local -i idx=$?
-  if (( idx )); then
-    _p9k_cached_cmd 0 $_p9k__parent_dirs[idx]/package.json node --version || return
-  else
-    (( _POWERLEVEL9K_NODE_VERSION_PROJECT_ONLY )) && return
-    _p9k_cached_cmd 0 '' node --version || return
+  (( idx || ! _POWERLEVEL9K_NODE_VERSION_PROJECT_ONLY )) || return
+
+  local node=$commands[node]
+  local -a file_deps env_deps
+  if [[ $node == ${NODENV_ROOT:-$HOME/.nodenv}/shims/node ]]; then
+    env_deps+=("$NODENV_VERSION")
+    file_deps+=(${NODENV_ROOT:-$HOME/.nodenv}/version)
+    if [[ $NODENV_DIR != (|.) ]]; then
+      [[ $NODENV_DIR == /* ]] && local dir=$NODENV_DIR || local dir="$_p9k__cwd_a/$NODENV_DIR"
+      dir=${dir:A}
+      if [[ $dir != $_p9k__cwd_a ]]; then
+        while true; do
+          if [[ -e $dir/.node-version ]]; then
+            file_deps+=($dir/.node-version)
+            break
+          fi
+          [[ $dir == (/|.) ]] && break
+          dir=${dir:h}
+        done
+      fi
+    fi
+    _p9k_upglob .node-version -. || file_deps+=($_p9k__parent_dirs[idx]/.node-version)
+  elif (( idx )); then
+    file_deps+=($_p9k__parent_dirs[idx]/package.json)
   fi
-  [[ $_p9k__ret == v?* ]] || return
-  _p9k_prompt_segment "$0" "green" "white" 'NODE_ICON' 0 '' "${_p9k__ret#v}"
+
+  if ! _p9k_cache_stat_get "$0 $#env_deps ${(j: :)${(@q)env_deps}} ${(j: :)${(@q)file_deps}}" $file_deps $node; then
+    local out
+    out=$($node --version 2>/dev/null)
+    _p9k_cache_stat_set $(( ! $? )) "$out"
+  fi
+  (( $_p9k__cache_val[1] )) || return
+  local v=$_p9k__cache_val[2]
+  [[ $v == v?* ]] || return
+  _p9k_prompt_segment "$0" "green" "white" 'NODE_ICON' 0 '' "${${v#v}//\%/%%}"
 }
 
 _p9k_prompt_node_version_init() {
@@ -2550,7 +2567,13 @@ _p9k_nvm_ls_current() {
 prompt_nvm() {
   [[ -n $NVM_DIR ]] && _p9k_nvm_ls_current || return
   local current=$_p9k__ret
-  ! _p9k_nvm_ls_default || [[ $_p9k__ret != $current ]] || return
+  (( _POWERLEVEL9K_NVM_SHOW_SYSTEM )) ||
+    [[ $current != system ]]          ||
+    return
+  (( _POWERLEVEL9K_NVM_PROMPT_ALWAYS_SHOW )) ||
+    ! _p9k_nvm_ls_default                    ||
+    [[ $_p9k__ret != $current ]]             ||
+    return
   _p9k_prompt_segment "$0" "magenta" "black" 'NODE_ICON' 0 '' "${${current#v}//\%/%%}"
 }
 
@@ -2612,7 +2635,7 @@ prompt_nodenv() {
       fi
     fi
     if [[ -z $_p9k__ret ]]; then
-      _p9k_upglob .node-version
+      _p9k_upglob .node-version -.
       local -i idx=$?
       if (( idx )) && _p9k_read_word $_p9k__parent_dirs[idx]/.node-version; then
         (( ${_POWERLEVEL9K_NODENV_SOURCES[(I)local]} )) || return
@@ -2648,11 +2671,11 @@ _p9k_prompt_nodenv_init() {
 
 prompt_dotnet_version() {
   if (( _POWERLEVEL9K_DOTNET_VERSION_PROJECT_ONLY )); then
-    _p9k_upglob 'project.json|global.json|packet.dependencies|*.csproj|*.fsproj|*.xproj|*.sln' && return
+    _p9k_upglob 'project.json|global.json|packet.dependencies|*.csproj|*.fsproj|*.xproj|*.sln' -. && return
   fi
 
   local cfg
-  _p9k_upglob global.json || cfg=$_p9k__parent_dirs[$?]/global.json
+  _p9k_upglob global.json -. || cfg=$_p9k__parent_dirs[$?]/global.json
   _p9k_cached_cmd 0 "$cfg" dotnet --version || return
   _p9k_prompt_segment "$0" "magenta" "white" 'DOTNET_ICON' 0 '' "$_p9k__ret"
 }
@@ -2675,7 +2698,7 @@ instant_prompt_os_icon() { prompt_os_icon; }
 # Segment to display PHP version number
 prompt_php_version() {
   if (( _POWERLEVEL9K_PHP_VERSION_PROJECT_ONLY )); then
-    _p9k_upglob 'composer.json|*.php' && return
+    _p9k_upglob 'composer.json|*.php' -. && return
   fi
   _p9k_cached_cmd 0 '' php --version || return
   [[ $_p9k__ret == (#b)(*$'\n')#'PHP '([[:digit:].]##)* ]] || return
@@ -2782,7 +2805,7 @@ prompt_rbenv() {
       fi
     fi
     if [[ -z $_p9k__ret ]]; then
-      _p9k_upglob .ruby-version
+      _p9k_upglob .ruby-version -.
       local -i idx=$?
       if (( idx )) && _p9k_read_word $_p9k__parent_dirs[idx]/.ruby-version; then
         (( ${_POWERLEVEL9K_RBENV_SOURCES[(I)local]} )) || return
@@ -2845,7 +2868,7 @@ prompt_scalaenv() {
       fi
     fi
     if [[ -z $_p9k__ret ]]; then
-      _p9k_upglob .scala-version
+      _p9k_upglob .scala-version -.
       local -i idx=$?
       if (( idx )) && _p9k_read_word $_p9k__parent_dirs[idx]/.scala-version; then
         (( ${_POWERLEVEL9K_SCALAENV_SOURCES[(I)local]} )) || return
@@ -2903,7 +2926,7 @@ prompt_phpenv() {
       fi
     fi
     if [[ -z $_p9k__ret ]]; then
-      _p9k_upglob .php-version
+      _p9k_upglob .php-version -.
       local -i idx=$?
       if (( idx )) && _p9k_read_word $_p9k__parent_dirs[idx]/.php-version; then
         (( ${_POWERLEVEL9K_PHPENV_SOURCES[(I)local]} )) || return
@@ -2964,7 +2987,7 @@ prompt_luaenv() {
       fi
     fi
     if [[ -z $_p9k__ret ]]; then
-      _p9k_upglob .lua-version
+      _p9k_upglob .lua-version -.
       local -i idx=$?
       if (( idx )) && _p9k_read_word $_p9k__parent_dirs[idx]/.lua-version; then
         (( ${_POWERLEVEL9K_LUAENV_SOURCES[(I)local]} )) || return
@@ -3025,7 +3048,7 @@ prompt_jenv() {
       fi
     fi
     if [[ -z $_p9k__ret ]]; then
-      _p9k_upglob .java-version
+      _p9k_upglob .java-version -.
       local -i idx=$?
       if (( idx )) && _p9k_read_word $_p9k__parent_dirs[idx]/.java-version; then
         (( ${_POWERLEVEL9K_JENV_SOURCES[(I)local]} )) || return
@@ -3086,7 +3109,7 @@ prompt_plenv() {
       fi
     fi
     if [[ -z $_p9k__ret ]]; then
-      _p9k_upglob .perl-version
+      _p9k_upglob .perl-version -.
       local -i idx=$?
       if (( idx )) && _p9k_read_word $_p9k__parent_dirs[idx]/.perl-version; then
         (( ${_POWERLEVEL9K_PLENV_SOURCES[(I)local]} )) || return
@@ -3124,7 +3147,7 @@ _p9k_prompt_plenv_init() {
 
 prompt_perlbrew() {
   if (( _POWERLEVEL9K_PERLBREW_PROJECT_ONLY )); then
-    _p9k_upglob 'cpanfile|.perltidyrc|(|MY)META.(yml|json)|(Makefile|Build).PL|*.(pl|pm|t|pod)' && return
+    _p9k_upglob 'cpanfile|.perltidyrc|(|MY)META.(yml|json)|(Makefile|Build).PL|*.(pl|pm|t|pod)' -. && return
   fi
 
   local v=$PERLBREW_PERL
@@ -3163,68 +3186,55 @@ instant_prompt_root_indicator() { prompt_root_indicator; }
 ################################################################
 # Segment to display Rust version number
 prompt_rust_version() {
-  unset P9K_RUST_VERSION
-  if (( _POWERLEVEL9K_RUST_VERSION_PROJECT_ONLY )); then
-    _p9k_upglob Cargo.toml && return
-  fi
-  local rustc=$commands[rustc] toolchain deps=()
-  if (( $+commands[ldd] )); then
-    if ! _p9k_cache_stat_get $0_so $rustc; then
-      local line so
-      for line in "${(@f)$(ldd $rustc 2>/dev/null)}"; do
-        [[ $line == (#b)[[:space:]]#librustc_driver[^[:space:]]#.so' => '(*)' (0x'[[:xdigit:]]#')' ]] || continue
-        so=$match[1]
-        break
-      done
-      _p9k_cache_stat_set "$so"
-    fi
-    deps+=$_p9k__cache_val[1]
-  fi
-  if (( $+commands[rustup] )); then
-    local rustup=$commands[rustup]
-    local rustup_home=${RUSTUP_HOME:-~/.rustup}
-    local cfg=($rustup_home/settings.toml(.N))
-    deps+=($cfg $rustup_home/update-hashes/*(.N))
-    if [[ -z ${toolchain::=$RUSTUP_TOOLCHAIN} ]]; then
-      if ! _p9k_cache_stat_get $0_overrides $rustup $cfg; then
-        local lines=(${(f)"$(rustup override list 2>/dev/null)"})
-        if [[ $lines[1] == "no overrides" ]]; then
-          _p9k_cache_stat_set
-        else
-          local MATCH
-          local keys=(${(@)${lines%%[[:space:]]#[^[:space:]]#}/(#m)*/${(b)MATCH}/})
-          local vals=(${(@)lines/(#m)*/$MATCH[(I)/] ${MATCH##*[[:space:]]}})
-          _p9k_cache_stat_set ${keys:^vals}
-        fi
-      fi
-      local -A overrides=($_p9k__cache_val)
-      _p9k_upglob rust-toolchain
-      local dir=$_p9k__parent_dirs[$?]
-      local -i n m=${dir[(I)/]}
-      local pair
-      for pair in ${overrides[(K)$_p9k__cwd/]}; do
-        n=${pair%% *}
-        (( n <= m )) && continue
-        m=n
-        toolchain=${pair#* }
-      done
-      if [[ -z $toolchain && -n $dir ]]; then
-        _p9k_read_word $dir/rust-toolchain
-        toolchain=$_p9k__ret
-      fi
-    fi
-  fi
-  if ! _p9k_cache_stat_get $0_v$toolchain $rustc $deps; then
-    _p9k_cache_stat_set "$($rustc --version 2>/dev/null)"
-  fi
-  local v=${${_p9k__cache_val[1]#rustc }%% *}
-  [[ -n $v ]] || return
-  typeset -g P9K_RUST_VERSION=$_p9k__cache_val[1]
-  _p9k_prompt_segment "$0" "darkorange" "$_p9k_color1" 'RUST_ICON' 0 '' "${v//\%/%%}"
+  local -i len=$#_p9k__prompt _p9k__has_upglob
+  _p9k_prompt_segment $0 darkorange $_p9k_color1 RUST_ICON 1 '$P9K_RUST_VERSION' '${P9K_RUST_VERSION//\%/%%}'
+  (( _p9k__has_upglob )) || typeset -g "_p9k__segment_val_${_p9k__prompt_side}[_p9k__segment_index]"=$_p9k__prompt[len+1,-1]
 }
 
-_p9k_prompt_rust_version_init() {
+function _p9k_prompt_rust_version_init() {
+  _p9k__async_segments_compute+='_p9k_rust_version_prefetch'
   typeset -g "_p9k__segment_cond_${_p9k__prompt_side}[_p9k__segment_index]"='$commands[rustc]'
+}
+
+_p9k_rust_version_prefetch() {
+  local rustc=$commands[rustc]
+  if [[ -z $rustc ]] ||
+     { (( _POWERLEVEL9K_RUST_VERSION_PROJECT_ONLY )) && _p9k_upglob Cargo.toml -. }; then
+    unset P9K_RUST_VERSION
+    return
+  fi
+  _p9k_worker_invoke rust_version \
+    "_p9k_prompt_rust_version_compute ${(q)P9K_RUST_VERSION} ${(q)rustc} ${(q)_p9k__cwd_a}"
+}
+
+_p9k_prompt_rust_version_compute() {
+  _p9k_worker_async                                          \
+    "_p9k_prompt_rust_version_async ${(q)1} ${(q)2} ${(q)3}" \
+    _p9k_prompt_rust_version_sync
+}
+
+_p9k_prompt_rust_version_async() {
+  typeset -g P9K_RUST_VERSION=$1
+  local rustc=$2 cwd=$3 v
+  if pushd -q -- $cwd; then
+    {
+      v=${${"$($rustc --version)"#rustc }%% *} || v=
+    } always {
+      popd -q
+    }
+  fi
+
+  [[ $v != $P9K_RUST_VERSION ]] || return
+  typeset -g P9K_RUST_VERSION=$v
+  _p9k_print_params P9K_RUST_VERSION
+  echo -E - 'reset=1'
+}
+
+_p9k_prompt_rust_version_sync() {
+  if [[ -n $REPLY ]]; then
+    eval $REPLY
+    _p9k_worker_reply $REPLY
+  fi
 }
 
 # RSpec test ratio
@@ -3695,7 +3705,7 @@ function +vi-hg-bookmarks() {
   if [[ -n "${hgbmarks[@]}" ]]; then
     hook_com[hg-bookmark-string]=" $(print_icon 'VCS_BOOKMARK_ICON')${hgbmarks[@]}"
 
-    # To signal that we want to use the sting we just generated, set the special
+    # To signal that we want to use the string we just generated, set the special
     # variable `ret' to something other than the default zero:
     ret=1
     return 0
@@ -3851,11 +3861,14 @@ function _p9k_vcs_status_purge() {
 
 function _p9k_vcs_icon() {
   case "$VCS_STATUS_REMOTE_URL" in
-    *github*)    _p9k__ret=VCS_GIT_GITHUB_ICON;;
-    *bitbucket*) _p9k__ret=VCS_GIT_BITBUCKET_ICON;;
-    *stash*)     _p9k__ret=VCS_GIT_BITBUCKET_ICON;;
-    *gitlab*)    _p9k__ret=VCS_GIT_GITLAB_ICON;;
-    *)           _p9k__ret=VCS_GIT_ICON;;
+    *github*)                          _p9k__ret=VCS_GIT_GITHUB_ICON;;
+    *bitbucket*)                       _p9k__ret=VCS_GIT_BITBUCKET_ICON;;
+    *stash*)                           _p9k__ret=VCS_GIT_BITBUCKET_ICON;;
+    *gitlab*)                          _p9k__ret=VCS_GIT_GITLAB_ICON;;
+    # https://learn.microsoft.com/en-us/azure/devops/repos/git/use-ssh-keys-to-authenticate
+    (|*@)vs-ssh.visualstudio.com(|:*)) _p9k__ret=VCS_GIT_AZURE_ICON;;  # old
+    (|*@)ssh.dev.azure.com(|:*))       _p9k__ret=VCS_GIT_AZURE_ICON;;  # new
+    *)                                 _p9k__ret=VCS_GIT_ICON;;
   esac
 }
 
@@ -3939,7 +3952,7 @@ function _p9k_vcs_render() {
       fi
 
       # It's weird that removing vcs-detect-changes from POWERLEVEL9K_VCS_GIT_HOOKS gets rid
-      # of the GIT icon. That's what vcs_info does, so we do the same in the name of compatiblity.
+      # of the GIT icon. That's what vcs_info does, so we do the same in the name of compatibility.
       _p9k_vcs_icon
       icon=$_p9k__ret
     fi
@@ -4237,6 +4250,19 @@ instant_prompt_vi_mode() {
   fi
 }
 
+# Chezmoi shell indicator: https://www.chezmoi.io/
+prompt_chezmoi_shell() {
+  _p9k_prompt_segment $0 blue $_p9k_color1 CHEZMOI_ICON 0 '' ''
+}
+
+_p9k_prompt_chezmoi_shell_init() {
+  typeset -g "_p9k__segment_cond_${_p9k__prompt_side}[_p9k__segment_index]"='$CHEZMOI'
+}
+
+function instant_prompt_chezmoi_shell() {
+  _p9k_prompt_segment prompt_chezmoi_shell blue $_p9k_color1 CHEZMOI_ICON 1 '$CHEZMOI_ICON' ''
+}
+
 ################################################################
 # Virtualenv: current working virtualenv
 # More information on virtualenv (Python):
@@ -4321,7 +4347,7 @@ function _p9k_pyenv_compute() {
       fi
     fi
     if [[ -z $_p9k__ret ]]; then
-      _p9k_upglob .python-version
+      _p9k_upglob .python-version -.
       local -i idx=$?
       if (( idx )) && _p9k_read_pyenv_like_version_file $_p9k__parent_dirs[idx]/.python-version python-; then
         (( ${_POWERLEVEL9K_PYENV_SOURCES[(I)local]} )) || return
@@ -4401,7 +4427,7 @@ prompt_goenv() {
       fi
     fi
     if [[ -z $_p9k__ret ]]; then
-      _p9k_upglob .go-version
+      _p9k_upglob .go-version -.
       local -i idx=$?
       if (( idx )) && _p9k_read_pyenv_like_version_file $_p9k__parent_dirs[idx]/.go-version go-; then
         (( ${_POWERLEVEL9K_GOENV_SOURCES[(I)local]} )) || return
@@ -4586,7 +4612,7 @@ _p9k_prompt_dropbox_init() {
 # print Java version number
 prompt_java_version() {
   if (( _POWERLEVEL9K_JAVA_VERSION_PROJECT_ONLY )); then
-    _p9k_upglob 'pom.xml|build.gradle.kts|build.sbt|deps.edn|project.clj|build.boot|*.(java|class|jar|gradle|clj|cljc)' && return
+    _p9k_upglob 'pom.xml|build.gradle.kts|build.sbt|deps.edn|project.clj|build.boot|*.(java|class|jar|gradle|clj|cljc)' -. && return
   fi
 
   local java=$commands[java]
@@ -4607,9 +4633,10 @@ _p9k_prompt_java_version_init() {
 }
 
 prompt_azure() {
-  local cfg=${AZURE_CONFIG_DIR:-$HOME/.azure}/azureProfile.json
-  if ! _p9k_cache_stat_get $0 $cfg; then
-    local name
+  local name cfg=${AZURE_CONFIG_DIR:-$HOME/.azure}/azureProfile.json
+  if _p9k_cache_stat_get $0 $cfg; then
+    name=$_p9k__cache_val[1]
+  else
     if (( $+commands[jq] )) && name="$(jq -r '[.subscriptions[]|select(.isDefault==true)|.name][]|strings' $cfg 2>/dev/null)"; then
       name=${name%%$'\n'*}
     elif ! name="$(az account show --query name --output tsv 2>/dev/null)"; then
@@ -4617,6 +4644,7 @@ prompt_azure() {
     fi
     _p9k_cache_stat_set "$name"
   fi
+  [[ -n $name ]] || return
   local pat class state
   for pat class in "${_POWERLEVEL9K_AZURE_CLASSES[@]}"; do
     if [[ $name == ${~pat} ]]; then
@@ -4624,8 +4652,7 @@ prompt_azure() {
       break
     fi
   done
-  [[ -n $_p9k__cache_val[1] ]] || return
-  _p9k_prompt_segment "$0$state" "blue" "white" "AZURE_ICON" 0 '' "${_p9k__cache_val[1]//\%/%%}"
+  _p9k_prompt_segment "$0$state" "blue" "white" "AZURE_ICON" 0 '' "${name//\%/%%}"
 }
 
 _p9k_prompt_azure_init() {
@@ -4966,11 +4993,11 @@ function prompt_nix_shell() {
 }
 
 _p9k_prompt_nix_shell_init() {
-  typeset -g "_p9k__segment_cond_${_p9k__prompt_side}[_p9k__segment_index]"='${IN_NIX_SHELL:#0}'
+  typeset -g "_p9k__segment_cond_${_p9k__prompt_side}[_p9k__segment_index]"=$_p9k_nix_shell_cond
 }
 
 function instant_prompt_nix_shell() {
-  _p9k_prompt_segment prompt_nix_shell 4 $_p9k_color1 NIX_SHELL_ICON 1 '${IN_NIX_SHELL:#0}' '${(M)IN_NIX_SHELL:#(pure|impure)}'
+  _p9k_prompt_segment prompt_nix_shell 4 $_p9k_color1 NIX_SHELL_ICON 1 "$_p9k_nix_shell_cond" '${(M)IN_NIX_SHELL:#(pure|impure)}'
 }
 
 function prompt_terraform() {
@@ -4994,12 +5021,16 @@ _p9k_prompt_terraform_init() {
 }
 
 function prompt_terraform_version() {
-  _p9k_cached_cmd 0 '' terraform --version || return
-  local v=${_p9k__ret#Terraform v}
-  (( $#v < $#_p9k__ret )) || return
-  v=${v%%$'\n'*}
+  local v cfg terraform=${commands[terraform]}
+  _p9k_upglob .terraform-version -. || cfg=$_p9k__parent_dirs[$?]/.terraform-version
+  if _p9k_cache_stat_get $0.$TFENV_TERRAFORM_VERSION $terraform $cfg; then
+    v=$_p9k__cache_val[1]
+  else
+    v=${${"$(terraform --version 2>/dev/null)"#Terraform v}%%$'\n'*} || v=
+    _p9k_cache_stat_set "$v"
+  fi
   [[ -n $v ]] || return
-  _p9k_prompt_segment $0 $_p9k_color1 blue TERRAFORM_ICON 0 '' $v
+  _p9k_prompt_segment $0 $_p9k_color1 blue TERRAFORM_ICON 0 '' ${v//\%/%%}
 }
 
 _p9k_prompt_terraform_version_init() {
@@ -5048,8 +5079,11 @@ function _p9k_timewarrior_clear() {
 }
 
 function prompt_timewarrior() {
+  local dir
+  [[ -n ${dir::=$TIMEWARRIORDB} || -n ${dir::=~/.timewarrior}(#qN/) ]] ||
+    dir=${XDG_DATA_HOME:-~/.local/share}/timewarrior
+  dir+=/data
   local -a stat
-  local dir=${TIMEWARRIORDB:-~/.timewarrior}/data
   [[ $dir == $_p9k_timewarrior_dir ]] || _p9k_timewarrior_clear
   if [[ -n $_p9k_timewarrior_file_name ]]; then
     zstat -A stat +mtime -- $dir $_p9k_timewarrior_file_name 2>/dev/null || stat=()
@@ -5631,7 +5665,7 @@ prompt_haskell_stack() {
     _p9k_haskell_stack_version $STACK_YAML
   else
     (( ${_POWERLEVEL9K_HASKELL_STACK_SOURCES[(I)local|global]} )) || return
-    if _p9k_upglob stack.yaml; then
+    if _p9k_upglob stack.yaml -.; then
       (( _POWERLEVEL9K_HASKELL_STACK_PROMPT_ALWAYS_SHOW )) || return
       (( ${_POWERLEVEL9K_HASKELL_STACK_SOURCES[(I)global]} )) || return
       _p9k_haskell_stack_version ${STACK_ROOT:-~/.stack}/global-project/stack.yaml
@@ -5689,6 +5723,31 @@ prompt_cpu_arch() {
 
 _p9k_prompt_cpu_arch_init() {
   typeset -g "_p9k__segment_cond_${_p9k__prompt_side}[_p9k__segment_index]"='$commands[machine]$commands[arch]'
+}
+
+################################################################
+# Oh My Zsh per-directory-history local/global indicator
+prompt_per_directory_history() {
+  if [[ $_per_directory_history_is_global == true ]]; then
+    _p9k_prompt_segment ${0}_GLOBAL 3 $_p9k_color1 HISTORY_ICON 0 '' global
+  else
+    _p9k_prompt_segment ${0}_LOCAL 5 $_p9k_color1 HISTORY_ICON 0 '' local
+  fi
+}
+
+instant_prompt_per_directory_history() {
+  case $HISTORY_START_WITH_GLOBAL in
+    true)
+      _p9k_prompt_segment prompt_per_directory_history_GLOBAL 3 $_p9k_color1 HISTORY_ICON 0 '' global
+    ;;
+    ?*)
+      _p9k_prompt_segment prompt_per_directory_history_LOCAL 5 $_p9k_color1 HISTORY_ICON 0 '' local
+    ;;
+  esac
+}
+
+_p9k_prompt_per_directory_history_init() {
+  typeset -g "_p9k__segment_cond_${_p9k__prompt_side}[_p9k__segment_index]"='$PER_DIRECTORY_HISTORY_TOGGLE'
 }
 
 # Use two preexec hooks to survive https://github.com/MichaelAquilina/zsh-you-should-use with
@@ -6582,9 +6641,12 @@ function _p9k_clear_instant_prompt() {
         unset _z4h_saved_screen
       fi
       print -rn -- $terminfo[rc]${(%):-%b%k%f%s%u}$terminfo[ed]
-      local unexpected=${(S)${${content//$'\e[?'<->'c'}//$'\e['<->' q'}//$'\e'[^$'\a\e']#($'\a'|$'\e\\')}
+      local unexpected=${${content//$'\e[?'<->'c'}//$'\e['<->' q'}
+      unexpected=${(S)unexpected//$'\eP'*[^$'\e']#($'\e\\')}
+      unexpected=${(S)unexpected//$'\e'[^$'\a\e']#($'\a'|$'\e\\')}
       # Visual Studio Code prints this garbage.
       unexpected=${${unexpected//$'\033[1;32mShell integration activated\033[0m\n'}//$'\r'}
+      typeset -g P9K_STARTUP_CONSOLE_OUTPUT=("$content" "$unexpected")
       if [[ -n $unexpected ]]; then
         local omz1='[Oh My Zsh] Would you like to update? [Y/n]: '
         local omz2='Updating Oh My Zsh'
@@ -7513,6 +7575,8 @@ _p9k_init_params() {
   _p9k_declare -b POWERLEVEL9K_NODENV_PROMPT_ALWAYS_SHOW 0
   _p9k_declare -a POWERLEVEL9K_NODENV_SOURCES -- shell local global
   _p9k_declare -b POWERLEVEL9K_NODENV_SHOW_SYSTEM 1
+  _p9k_declare -b POWERLEVEL9K_NVM_PROMPT_ALWAYS_SHOW 0
+  _p9k_declare -b POWERLEVEL9K_NVM_SHOW_SYSTEM 1
   _p9k_declare -b POWERLEVEL9K_RBENV_PROMPT_ALWAYS_SHOW 0
   _p9k_declare -a POWERLEVEL9K_RBENV_SOURCES -- shell local global
   _p9k_declare -b POWERLEVEL9K_RBENV_SHOW_SYSTEM 1
@@ -7594,6 +7658,7 @@ _p9k_init_params() {
   _p9k_declare -i POWERLEVEL9K_VCS_COMMITS_AHEAD_MAX_NUM -1
   _p9k_declare -i POWERLEVEL9K_VCS_COMMITS_BEHIND_MAX_NUM -1
   _p9k_declare -b POWERLEVEL9K_VCS_RECURSE_UNTRACKED_DIRS 0
+  _p9k_declare -F POWERLEVEL9K_GITSTATUS_INIT_TIMEOUT_SEC 10
   _p9k_declare -b POWERLEVEL9K_DISABLE_GITSTATUS 0
   _p9k_declare -e POWERLEVEL9K_VI_INSERT_MODE_STRING "INSERT"
   _p9k_declare -e POWERLEVEL9K_VI_COMMAND_MODE_STRING "NORMAL"
@@ -7658,6 +7723,12 @@ _p9k_init_params() {
   _p9k_declare -b POWERLEVEL9K_TIME_UPDATE_ON_COMMAND 0
   # If set to true, time will update every second.
   _p9k_declare -b POWERLEVEL9K_EXPERIMENTAL_TIME_REALTIME 0
+
+  _p9k_declare -b POWERLEVEL9K_NIX_SHELL_INFER_FROM_PATH 0
+  typeset -g _p9k_nix_shell_cond='${IN_NIX_SHELL:#0}'
+  if (( _POWERLEVEL9K_NIX_SHELL_INFER_FROM_PATH )); then
+    _p9k_nix_shell_cond+='${path[(r)/nix/store/*]}'
+  fi
 
   local -i i=1
   while (( i <= $#_POWERLEVEL9K_LEFT_PROMPT_ELEMENTS )); do
@@ -8231,9 +8302,17 @@ _p9k_init_prompt() {
   if (( _POWERLEVEL9K_TERM_SHELL_INTEGRATION )); then
     _p9k_prompt_prefix_left+=$'%{\e]133;A\a%}'
     _p9k_prompt_suffix_left+=$'%{\e]133;B\a%}'
+    if [[ $TERM_PROGRAM == WarpTerminal ]]; then
+      _p9k_prompt_prefix_right=$'%{\e]133;P;k=r\a%}'$_p9k_prompt_prefix_right
+      _p9k_prompt_suffix_right+=$'%{\e]133;B\a%}'
+    fi
     if (( $+_z4h_iterm_cmd && _z4h_can_save_restore_screen == 1 )); then
       _p9k_prompt_prefix_left+=$'%{\ePtmux;\e\e]133;A\a\e\\%}'
       _p9k_prompt_suffix_left+=$'%{\ePtmux;\e\e]133;B\a\e\\%}'
+      if [[ $TERM_PROGRAM == WarpTerminal ]]; then
+        _p9k_prompt_prefix_right=$'%{\ePtmux;\e\e]133;P;k=r\a\e\\%}'$_p9k_prompt_prefix_right
+        _p9k_prompt_suffix_right+=$'%{\ePtmux;\e\e]133;B\a\e\\%}'
+      fi
     fi
   fi
 
@@ -8358,8 +8437,8 @@ _p9k_must_init() {
     [[ $sig == $_p9k__param_sig ]] && return 1
     _p9k_deinit
   fi
-  _p9k__param_pat=$'v140\1'${(q)ZSH_VERSION}$'\1'${(q)ZSH_PATCHLEVEL}$'\1'
-  _p9k__param_pat+=$__p9k_force_term_shell_integration$'\1'
+  _p9k__param_pat=${(q)P9K_VERSION}$'\1'${(q)ZSH_VERSION}$'\1'${(q)ZSH_PATCHLEVEL}$'\1'
+  _p9k__param_pat+=$__p9k_force_term_shell_integration$'\1'${(q)TERM_PROGRAM}$'\1'
   _p9k__param_pat+=$'${#parameters[(I)POWERLEVEL9K_*]}\1${(%):-%n%#}\1$GITSTATUS_LOG_LEVEL\1'
   _p9k__param_pat+=$'$GITSTATUS_ENABLE_LOGGING\1$GITSTATUS_DAEMON\1$GITSTATUS_NUM_THREADS\1'
   _p9k__param_pat+=$'$GITSTATUS_CACHE_DIR\1$GITSTATUS_AUTO_INSTALL\1${ZLE_RPROMPT_INDENT:-1}\1'
@@ -8431,7 +8510,14 @@ function _p9k_init_cacheable() {
     _p9k_transient_prompt+='${${P9K_CONTENT::="❯"}+}'
     _p9k_param prompt_prompt_char_ERROR_VIINS CONTENT_EXPANSION '${P9K_CONTENT}'
     _p9k_transient_prompt+='${:-"'$_p9k__ret'"}'
-    _p9k_transient_prompt+=')%b%k%f%s%u '
+    _p9k_transient_prompt+=')%b%k%f%s%u'
+    _p9k_get_icon '' LEFT_SEGMENT_END_SEPARATOR
+    if [[ $_p9k__ret != (| ) ]]; then
+      _p9k__ret+=%b%k%f
+      # Not escaped for historical reasons.
+      _p9k__ret='${:-"'$_p9k__ret'"}'
+    fi
+    _p9k_transient_prompt+=$_p9k__ret
     if (( _POWERLEVEL9K_TERM_SHELL_INTEGRATION )); then
       _p9k_transient_prompt=$'%{\e]133;A\a%}'$_p9k_transient_prompt$'%{\e]133;B\a%}'
       if (( $+_z4h_iterm_cmd && _z4h_can_save_restore_screen == 1 )); then
@@ -8458,7 +8544,7 @@ function _p9k_init_cacheable() {
         if [[ -r /etc/os-release ]]; then
           local lines=(${(f)"$(</etc/os-release)"})
           lines=(${(@M)lines:#ID=*})
-          (( $#lines == 1 )) && os_release_id=${lines[1]#ID=}
+          (( $#lines == 1 )) && os_release_id=${(Q)${lines[1]#ID=}}
         elif [[ -e /etc/artix-release ]]; then
           os_release_id=artix
         fi
@@ -8470,6 +8556,7 @@ function _p9k_init_cacheable() {
           *elementary*)            _p9k_set_os Linux LINUX_ELEMENTARY_ICON;;
           *fedora*)                _p9k_set_os Linux LINUX_FEDORA_ICON;;
           *coreos*)                _p9k_set_os Linux LINUX_COREOS_ICON;;
+          *kali*)                  _p9k_set_os Linux LINUX_KALI_ICON;;
           *gentoo*)                _p9k_set_os Linux LINUX_GENTOO_ICON;;
           *mageia*)                _p9k_set_os Linux LINUX_MAGEIA_ICON;;
           *centos*)                _p9k_set_os Linux LINUX_CENTOS_ICON;;
@@ -8486,6 +8573,9 @@ function _p9k_init_cacheable() {
           *artix*)                 _p9k_set_os Linux LINUX_ARTIX_ICON;;
           *rhel*)                  _p9k_set_os Linux LINUX_RHEL_ICON;;
           amzn)                    _p9k_set_os Linux LINUX_AMZN_ICON;;
+          endeavouros)             _p9k_set_os Linux LINUX_ENDEAVOUROS_ICON;;
+          rocky)                   _p9k_set_os Linux LINUX_ROCKY_ICON;;
+          guix)                    _p9k_set_os Linux LINUX_GUIX_ICON;;
           *)                       _p9k_set_os Linux LINUX_ICON;;
         esac
         ;;
@@ -8636,7 +8726,7 @@ _p9k_init_vcs() {
       () {
         trap 'return 130' INT
         {
-          gitstatus_start_p9k_ POWERLEVEL9K
+          gitstatus_start_p9k_ -t $_POWERLEVEL9K_GITSTATUS_INIT_TIMEOUT_SEC POWERLEVEL9K
         } always {
           trap ':' INT
         }
@@ -8680,6 +8770,7 @@ _p9k_init_vcs() {
         -d $_POWERLEVEL9K_VCS_UNTRACKED_MAX_NUM               \
         -c $_POWERLEVEL9K_VCS_CONFLICTED_MAX_NUM              \
         -m $_POWERLEVEL9K_VCS_MAX_INDEX_SIZE_DIRTY            \
+        -t $_POWERLEVEL9K_GITSTATUS_INIT_TIMEOUT_SEC          \
         ${${_POWERLEVEL9K_VCS_RECURSE_UNTRACKED_DIRS:#0}:+-e} \
         POWERLEVEL9K
     } always {
@@ -8903,6 +8994,8 @@ _p9k_precmd_first() {
   eval "$__p9k_intro"
   if [[ -n $KITTY_SHELL_INTEGRATION && KITTY_SHELL_INTEGRATION[(wIe)no-prompt-mark] -eq 0 ]]; then
     KITTY_SHELL_INTEGRATION+=' no-prompt-mark'
+    (( $+__p9k_force_term_shell_integration )) || typeset -gri __p9k_force_term_shell_integration=1
+  elif [[ $TERM_PROGRAM == WarpTerminal ]]; then
     (( $+__p9k_force_term_shell_integration )) || typeset -gri __p9k_force_term_shell_integration=1
   fi
   typeset -ga precmd_functions=(${precmd_functions:#_p9k_precmd_first})
@@ -9303,6 +9396,7 @@ if [[ $__p9k_dump_file != $__p9k_instant_prompt_dump_file && -n $__p9k_instant_p
   zf_rm -f -- $__p9k_instant_prompt_dump_file{,.zwc} 2>/dev/null
 fi
 
+typeset -g P9K_VERSION=1.19.8
 unset VSCODE_SHELL_INTEGRATION
 
 _p9k_init_ssh
