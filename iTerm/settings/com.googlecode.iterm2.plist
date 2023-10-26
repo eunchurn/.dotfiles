@@ -18,6 +18,8 @@
 	<true/>
 	<key>CommandSelection</key>
 	<true/>
+	<key>Compress History</key>
+	<false/>
 	<key>Control</key>
 	<integer>1</integer>
 	<key>CopyLastNewline</key>
@@ -2041,6 +2043,8 @@
 	<integer>2</integer>
 	<key>LeftTabBarWidth</key>
 	<real>162.59765625</real>
+	<key>LogDrawingPerformance</key>
+	<true/>
 	<key>MaxVertically</key>
 	<false/>
 	<key>NeverWarnAboutShortLivedSessions_DDD8FB3F-2622-4FDC-9151-32BBB75B8411</key>
@@ -2422,7 +2426,7 @@
 			<key>Initial Text</key>
 			<string></string>
 			<key>Initial Use Transparency</key>
-			<true/>
+			<false/>
 			<key>Jobs to Ignore</key>
 			<array>
 				<string>rlogin</string>
@@ -2741,7 +2745,7 @@
 			<key>Screen</key>
 			<integer>-1</integer>
 			<key>Scrollback Lines</key>
-			<integer>10000</integer>
+			<integer>20000</integer>
 			<key>Scrollback With Status Bar</key>
 			<false/>
 			<key>Scrollback in Alternate Screen</key>
@@ -2895,7 +2899,9 @@
 			<key>Triggers</key>
 			<array/>
 			<key>Unicode Normalization</key>
-			<integer>3</integer>
+			<integer>0</integer>
+			<key>Unicode Version</key>
+			<integer>8</integer>
 			<key>Unlimited Scrollback</key>
 			<false/>
 			<key>Use Bold Font</key>
