@@ -1,0 +1,3 @@
+[submodule "kubectx"]
+	path = kubectx
+	url = https://github.com/ahmetb/kubectx.git
