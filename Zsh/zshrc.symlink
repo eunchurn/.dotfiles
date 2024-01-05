@@ -70,6 +70,10 @@ plugins=(
 
 RPS1='$(kubectx_prompt_info)'
 
+kubectx_mapping[minikube]="mini"
+kubectx_mapping[context_name_from_kubeconfig]="$emoji[wolf_face]"
+kubectx_mapping[production_cluster]="%{$fg[yellow]%}prod!%{$reset_color%}"
+
 # ZSH_THEME="geometry/geometry"
 ZSH_THEME="powerlevel10k/powerlevel10k"
 COMPLETION_WAITING_DOTS="true"
