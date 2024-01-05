@@ -70,6 +70,20 @@ plugins=(
 ZSH_THEME="powerlevel10k/powerlevel10k"
 COMPLETION_WAITING_DOTS="true"
 
+### Fix slowness of pastes with zsh-syntax-highlighting.zsh
+pasteinit() {
+  OLD_SELF_INSERT=${${(s.:.)widgets[self-insert]}[2,3]}
+  zle -N self-insert url-quote-magic # I wonder if you'd need `.url-quote-magic`?
+}
+
+pastefinish() {
+  zle -N self-insert $OLD_SELF_INSERT
+}
+zstyle :bracketed-paste-magic paste-init pasteinit
+zstyle :bracketed-paste-magic paste-finish pastefinish
+### Fix slowness of pastes
+
+
 # Zsh History
 # (Save History to Dropbox if already set up)
 export PSY_HISTORY_FILE="$HOME/Dropbox/System/.zsh_history"
@@ -171,3 +185,4 @@ export PATH="/opt/homebrew/lib/python3.11/site-packages:$PATH"
 export CPATH=/opt/homebrew/include
 export LIBRARY_PATH=/opt/homebrew/lib
 # source "/Users/eunchurn/emsdk/emsdk_env.sh"
+export PATH="${KREW_ROOT:-$HOME/.krew}/bin:$PATH"
