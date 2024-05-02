@@ -2,9 +2,9 @@
 	excludesfile = ~/.dotfiles/Git/.gitignore.global
 
 [user]
-	name = Sheharyar Naseer
-	email = hello@sheharyar.me
-  signingkey = ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIO2FWh8rGe1WZqct8PLZDltLeTwE5IKo+ZNqEnZQzrLQ
+	name = Eunchurn Park/
+	email = eunchurn.park@gmail.com
+	signingkey = 29D94D9C697E3F92
 
 [push]
 	default = simple
@@ -23,8 +23,5 @@
 	gpgsign = true
 
 [gpg]
-  format = ssh
+  format = openpgp
 
-[gpg "ssh"]
-  program = "/Applications/1Password.app/Contents/MacOS/op-ssh-sign"
-  allowedSignersFile = ~/.ssh/allowed_signers

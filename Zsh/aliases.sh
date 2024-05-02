@@ -50,10 +50,10 @@ alias psytree-dirs='grep -e "\/$" | sed "s/^|--/|\n|--/g"'
 # Make sudo work with aliases
 alias sudo='sudo '
 
-alias vim=/opt/homebrew/bin/nvim
-alias vi=/opt/homebrew/bin/nvim
-alias vimdiff=/opt/homebrew/bin/nvim -d
-alias cat=/opt/homebrew/bin/bat
+alias vim=$HOMEBREW_ROOT/bin/nvim
+alias vi=$HOMEBREW_ROOT/bin/nvim
+alias vimdiff=$HOMEBREW_ROOT/bin/nvim -d
+alias cat=$HOMEBREW_ROOT/bin/bat
 alias bathelp='bat --plain --language=help'
 help() {
     "$@" --help 2>&1 | bathelp

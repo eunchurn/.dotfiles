@@ -14,6 +14,14 @@ export ZSH=$HOME/.oh-my-zsh
 export PATH=/usr/local/bin:$PATH
 export PATH=/usr/local/sbin:$PATH
 
+if [ $(uname -m) = "x86_64" ]
+then 
+  export HOMEBREW_ROOT=/usr/local
+else
+  # arm
+  export HOMEBREW_ROOT=/usr/local
+fi
+
 export dotfiles=$HOME/.dotfiles
 export DOTFILES=$dotfiles
 export ZSH_CUSTOM=$DOTFILES/Zsh/custom
@@ -104,7 +112,7 @@ setopt INC_APPEND_HISTORY
 source $ZSH/oh-my-zsh.sh
 
 # Load Homebrew
-export BREW_COMMAND="/opt/homebrew/bin/brew"
+export BREW_COMMAND="$HOMEBREW_ROOT/bin/brew"
 [[ -s "$BREW_COMMAND" ]] && eval "$($BREW_COMMAND shellenv)"
 
 # Enable Vim mode
@@ -119,7 +127,7 @@ export PATH=$PATH:$GOPATH/bin
 
 # ASDF Configs
 # export ASDF_DIR=/usr/local/opt/asdf/libexec   # (manual install)
-export ASDF_DIR=/opt/homebrew/opt/asdf/libexec # (homebrew install)
+export ASDF_DIR=$HOMEBREW_ROOT/opt/asdf/libexec # (homebrew install)
 [[ -s "$ASDF_DIR/asdf.sh" ]] && source "$ASDF_DIR/asdf.sh"
 fpath=(${ASDF_DIR}/completions $fpath)
 autoload -Uz compinit && compinit
@@ -140,9 +148,9 @@ export PUPPETEER_EXECUTABLE_PATH=`which chromium`
 #THIS MUST BE AT THE END OF THE FILE FOR SDKMAN TO WORK!!!
 export SDKMAN_DIR="$HOME/.sdkman"
 [[ -s "$HOME/.sdkman/bin/sdkman-init.sh" ]] && source "$HOME/.sdkman/bin/sdkman-init.sh"
-export PATH="/opt/homebrew/opt/ruby/bin:$PATH"
-export LDFLAGS="-L/opt/homebrew/opt/ruby/lib"
-export CPPFLAGS="-I/opt/homebrew/opt/ruby/include"
+export PATH="$HOMEBREW_ROOT/opt/ruby/bin:$PATH"
+export LDFLAGS="-L$HOMEBREW_ROOT/opt/ruby/lib"
+export CPPFLAGS="-I$HOMEBREW_ROOT/opt/ruby/include"
 
 # RVM Configs
 # export PATH=$PATH:$HOME/.rvm/bin
@@ -168,7 +176,7 @@ done
 alias k='kubectl'
 
 autoload -U +X bashcompinit && bashcompinit
-complete -o nospace -C /opt/homebrew/bin/terraform terraform
+complete -o nospace -C $HOMEBREW_ROOT/bin/terraform terraform
 
 # GPG
 export GPG_TTY=$(tty)
@@ -180,14 +188,14 @@ export PATH="$PNPM_HOME:$PATH"
 # pnpm end
 
 # chromium
-export CHROME_EXECUTABLE=/opt/homebrew/bin/chromium
+export CHROME_EXECUTABLE=$HOMEBREW_ROOT/bin/chromium
 export PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
 export PUPPETEER_EXECUTABLE_PATH=`which chromium`
 
-source "$HOME/.cargo/env"
+# source "$HOME/.cargo/env"
 export PATH="/Users/eunchurn/Library/Python/3.11/bin:$PATH"
-export PATH="/opt/homebrew/lib/python3.11/site-packages:$PATH"
-export CPATH=/opt/homebrew/include
-export LIBRARY_PATH=/opt/homebrew/lib
+export PATH="$HOMEBREW_ROOT/lib/python3.11/site-packages:$PATH"
+export CPATH=$HOMEBREW_ROOT/include
+export LIBRARY_PATH=$HOMEBREW_ROOT/lib
 # source "/Users/eunchurn/emsdk/emsdk_env.sh"
 export PATH="${KREW_ROOT:-$HOME/.krew}/bin:$PATH"
