@@ -25,6 +25,7 @@ fi
 export dotfiles=$HOME/.dotfiles
 export DOTFILES=$dotfiles
 export ZSH_CUSTOM=$DOTFILES/Zsh/custom
+source $DOTFILES/Warp/custom/custom-manager.zsh
 
 export EDITOR="nvim"
 export LESS="-R"
