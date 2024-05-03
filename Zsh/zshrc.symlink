@@ -51,7 +51,7 @@ plugins=(
   brew
   zsh-syntax-highlighting
   zsh-autosuggestions
-  # fzf
+  fzf
   fasd
   # zsh-hangul
   macos
@@ -191,3 +191,7 @@ export CPATH=$HOMEBREW_ROOT/include
 export LIBRARY_PATH=$HOMEBREW_ROOT/lib
 # source "/Users/eunchurn/emsdk/emsdk_env.sh"
 export PATH="${KREW_ROOT:-$HOME/.krew}/bin:$PATH"
+
+# kubectx interactive mode
+# https://gurumee92.tistory.com/302
+KUBECTX_IGNORE_FZF=1
