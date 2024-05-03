@@ -67,6 +67,7 @@ plugins=(
   history
   tig
   wd
+  bun
   # iterm2
 )
 
@@ -118,6 +119,9 @@ export BREW_COMMAND="$HOMEBREW_ROOT/bin/brew"
 # Go Configs
 export GOPATH=$HOME/go
 export PATH=$PATH:$GOPATH/bin
+
+# Bun configs
+export PATH=$PATH:$HOME/.bun/bin
 
 # ASDF Configs
 # export ASDF_DIR=/usr/local/opt/asdf/libexec   # (manual install)
@@ -195,3 +199,9 @@ export PATH="${KREW_ROOT:-$HOME/.krew}/bin:$PATH"
 # kubectx interactive mode
 # https://gurumee92.tistory.com/302
 KUBECTX_IGNORE_FZF=1
+# bun completions
+[ -s "/Users/eunchurnpark/.bun/_bun" ] && source "/Users/eunchurnpark/.bun/_bun"
+
+# bun
+export BUN_INSTALL="$HOME/.bun"
+export PATH="$BUN_INSTALL/bin:$PATH"
