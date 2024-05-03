@@ -55,6 +55,10 @@ alias vi=$HOMEBREW_ROOT/bin/nvim
 alias vimdiff=$HOMEBREW_ROOT/bin/nvim -d
 alias cat=$HOMEBREW_ROOT/bin/bat
 alias bathelp='bat --plain --language=help'
+
+# Kubernetes
+alias k='kubectl'
+
 help() {
     "$@" --help 2>&1 | bathelp
 }
