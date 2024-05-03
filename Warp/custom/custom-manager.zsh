@@ -53,7 +53,7 @@ warp-custom() {
     local dirname=$(basename $arg_url .git)
     local fullpath="$dirpath/$dirname"
     local message="Warp Subtree ($arg_mode $arg_type): $dirname \n\n Path: $fullpath \n Repo: $2"
-    git -C $DOTFILES subtree $mode --prefix "$fullpath" "$arg_url" master --squash -m $message
+    git -C $DOTFILES subtree $mode --prefix "$fullpath" "$arg_url" main --squash -m $message
 
     echo ""
     echo "> $result Subtree in Repo!"
