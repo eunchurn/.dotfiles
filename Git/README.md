@@ -18,6 +18,10 @@ Load up my git configuration. It includes user.name and user.email defaults, my 
 ```bash
 $ ln -s ~/.dotfiles/Git/.gitconfig.global ~/.gitconfig
 ```
+for work (Onycom)
+```bash
+$ ln -s ~/.dotfiles/Git/.gitconfig-onycom.global ~/.gitconfig
+```
 
 You should enter your own name and email:
 
