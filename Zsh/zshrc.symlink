@@ -179,8 +179,8 @@ export GPG_TTY=$(tty)
 
 # neofetch
 # pnpm
-# export PNPM_HOME="/Users/eunchurnpark/Library/pnpm"
-# export PATH="$PNPM_HOME:$PATH"
+export PNPM_HOME=$(dirname $(which pnpm))
+export PATH="$PNPM_HOME:$PATH"
 # pnpm end
 
 # chromium

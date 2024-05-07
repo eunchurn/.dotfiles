@@ -3,8 +3,11 @@
 
 [user]
 	name = Eunchurn Park
-	email = eunchurn.park@gmail.com
-	signingkey = 29D94D9C697E3F92
+	email = eunchurn@onycom.com
+	signingkey = EDEFB112E6184979
+#	name = Eunchurn Park
+#	email = eunchurn.park@gmail.com
+#	signingkey = 29D94D9C697E3F92
 
 [push]
 	default = simple
