@@ -8,7 +8,7 @@ alias         g='git'
 
 # Status and Information
 alias        gb='LESS="-FRX" git branch'
-alias        gs='git status'
+# alias        gs='git status'
 alias       gss='git status -s'
 alias       gsh='git show'
 alias      gshf='git show --name-only'

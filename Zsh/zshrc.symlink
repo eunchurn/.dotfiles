@@ -214,3 +214,13 @@ eval "$(pyenv init -)"
 # mysql
 export PKG_CONFIG_PATH="$HOMEBREW_ROOT/opt/mysql-client/lib/pkgconfig"
 export PATH="$HOMEBREW_ROOT/opt/mysql-client/bin:$PATH"
+export PATH="/opt/homebrew/lib/python3.11/site-packages:$PATH"
+export CPATH=/opt/homebrew/include
+
+export PATH="${KREW_ROOT:-$HOME/.krew}/bin:$PATH"
+export PATH="/opt/homebrew/opt/openjdk/bin:$PATH"
+
+# rbenv
+export PATH=/opt/homebrew/bin:$PATH
+export PATH="$HOME/.rbenv/bin:$PATH"
+eval "$(rbenv init -)"

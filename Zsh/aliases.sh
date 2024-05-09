@@ -64,3 +64,5 @@ alias k='kubectl'
 help() {
     "$@" --help 2>&1 | bathelp
 }
+
+alias html-to-epub='$(go env GOPATH)/bin/html-to-epub'
