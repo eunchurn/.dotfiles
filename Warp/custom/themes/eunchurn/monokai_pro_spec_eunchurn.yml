@@ -14,7 +14,7 @@ background_image:
   # the full path to the picture is: ~/.warp/themes/warp.jpg
   path: eunchurn/camping.jpg
   # the opacity value is required and can range from 0-100
-  opacity: 50
+  opacity: 20
 ############################################################### SEE ABOVE
 
 terminal_colors:
