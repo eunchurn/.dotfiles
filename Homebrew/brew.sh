@@ -22,7 +22,7 @@ brew install coreutils
 brew install gnu-sed
 brew install git
 brew install git-filter-repo
-brew install svn
+# brew install svn
 brew install gpg
 brew install nano
 brew install curl
@@ -37,9 +37,10 @@ brew install safe-rm
 brew install trash-cli
 brew install tree
 brew install unrar
-brew install nginx
-brew install mysql
-brew install mongodb/brew/mongodb-community
+brew install tig
+# brew install nginx
+# brew install mysql
+# brew install mongodb/brew/mongodb-community
 brew install postgresql
 brew install imagemagick
 brew install archey
