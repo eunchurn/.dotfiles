@@ -228,3 +228,6 @@ eval "$(rbenv init -)"
 
 # android studio
 export ANDROID_HOME=$HOME/Library/Android/sdk
+
+# docker volume
+alias dockervm="docker start dockervm_instance -i || docker run --name=dockervm_instance -it --privileged --pid=host debian nsenter -t 1 -m -u -n -i sh"
