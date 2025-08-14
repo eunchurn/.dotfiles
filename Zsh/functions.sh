@@ -208,3 +208,15 @@ transfer() {
     # cleanup
     rm -f $tmpfile
 }
+
+azurecr-login() {
+  # Login to Azure Container Registry
+  bash -c "$(cat ~/.dotfiles/Zsh/azurecr-login.sh)"
+}
+
+nks-update() {
+  # imqa-test
+  bash -c "ncp-iam-authenticator update-kubeconfig --profile default --region KR --clusterUuid a2bda096-9221-4e89-94a9-593ccc15c045"
+  # nhbank
+  bash -c "ncp-iam-authenticator update-kubeconfig --profile default --region KR --clusterUuid 779f037f-8394-4de0-9af1-032fb12814b6"
+}
