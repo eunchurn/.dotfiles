@@ -15,7 +15,8 @@ alias chang="cd ~/chang"
 alias eunchurn="cd ~/eunchurn"
 alias nvc="cd ~/nvc"
 alias onycom="cd ~/onycom"
-alias imqa="cd ~/onycom/IMQA"
+alias imqa="cd ~/onycom/imqa"
+alias sophonz="cd ~/sophonz-labs"
 
 # Edit .zshrc file
 alias zshrc="$EDITOR $zshrc"
