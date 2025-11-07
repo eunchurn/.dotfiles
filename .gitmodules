@@ -1,9 +1,6 @@
 [submodule "Nano/syntax_files"]
 	path = Nano/syntax_files
 	url = git@github.com:scopatz/nanorc.git
-[submodule "Sublime/2/sftp_servers"]
-	path = Sublime/2/sftp_servers
-	url = git@bitbucket.org:sheharyar/sublimesftp-servers.git
 [submodule "Zsh/custom/themes/powerlevel10k"]
 	path = Zsh/custom/themes/powerlevel10k
 	url = https://github.com/romkatv/powerlevel10k.git
