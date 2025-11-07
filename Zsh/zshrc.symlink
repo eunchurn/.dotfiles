@@ -252,3 +252,6 @@ export PATH="/Users/eunchurn/.rd/bin:$PATH"
 export PATH="$PATH:/Users/eunchurn/.local/bin"
 
 alias claude="$HOME/.local/bin/claude --dangerously-skip-permissions"
+# Task Master aliases added on 11/1/2025
+alias tm='task-master'
+alias taskmaster='task-master'
