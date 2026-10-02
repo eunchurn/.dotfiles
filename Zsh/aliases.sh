@@ -17,6 +17,7 @@ alias nvc="cd ~/nvc"
 alias onycom="cd ~/onycom"
 alias imqa="cd ~/onycom/imqa"
 alias sophonz="cd ~/sophonz-labs"
+alias obsidian='cd "$HOME/Library/Mobile Documents/iCloud~md~obsidian/Documents/sophonz"'
 
 # Edit .zshrc file
 alias zshrc="$EDITOR $zshrc"
