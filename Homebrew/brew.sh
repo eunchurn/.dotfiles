@@ -69,7 +69,6 @@ brew install --cask 1password
 brew install --cask 1password-cli
 brew install --cask firefox-developer-edition
 brew install --cask google-chrome
-brew install --cask mpv
 brew install --cask jumpshare
 brew install --cask dropbox
 brew install --cask teamviewer

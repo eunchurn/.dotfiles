@@ -12,7 +12,6 @@ DOCK_APPS=(
   "Safari"
   "1Password"
   "Spotify"
-  "MPV"
   "Postico"
   "Messages"
   "TweetDeck"
