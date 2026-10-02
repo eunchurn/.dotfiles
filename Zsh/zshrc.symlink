@@ -264,5 +264,4 @@ alias taskmaster='task-master'
 export PATH="/Users/eunchurn/.codeium/windsurf/bin:$PATH"
 
 # Claude Squad
-alias csai="claude-squad -p \"claude --dangerously-skip-permissions\""
 export PATH="$HOME/.local/bin:$PATH"
