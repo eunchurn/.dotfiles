@@ -54,6 +54,7 @@ brew install duti
 brew install k9s
 brew install docker-compose
 brew install neofetch
+brew install mpv  # the `mpv` cask is disabled upstream (fails Gatekeeper)
 
 #> External Binaries
 # brew install neovim/neovim/neovim --HEAD
@@ -69,7 +70,6 @@ brew install --cask 1password
 brew install --cask 1password-cli
 brew install --cask firefox-developer-edition
 brew install --cask google-chrome
-brew install --cask mpv
 brew install --cask jumpshare
 brew install --cask dropbox
 brew install --cask teamviewer
